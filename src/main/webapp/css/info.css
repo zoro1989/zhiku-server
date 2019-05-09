@@ -2,20 +2,28 @@
     height: 150px;
 }
 #fh5co-blog .container {
-    display: flex;
+    display: inline-block;
+    vertical-align: top;
     width: 80%!important;
+    margin-left: 260px;
+    margin-top: 150px;
 }
 .menu-box {
-    height: 100vh;
-    flex: 0 0 260px;
+    height: calc(100vh - 150px);
     border-radius: 5px;
     width: 260px;
-    overflow: hidden;
+    display: inline-block;
+    vertical-align: top;
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin-top: 150px;
     background: #ED5565;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 #fh5co-blog .container .info-box {
-    min-height: 510px;
     position: relative;
     flex: 1;
 }
@@ -42,4 +50,15 @@
 }
 .info-box {
     background: #fff;
+}
+.fh5co-nav {
+    position: fixed;
+}
+#fh5co-header, #fh5co-counter, .fh5co-bg {
+    position: fixed;
+    z-index: 1;
+    background-position: 50% 0px!important;
+}
+#fh5co-footer {
+    margin-left: 260px;
 }

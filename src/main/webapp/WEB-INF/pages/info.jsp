@@ -5,7 +5,6 @@
 <head>
     <%@ include file="./layout/header.jsp"%>
     <link rel="stylesheet" href="${baseurl}/css/jquery-accordion-menu.css">
-    <link rel="stylesheet" href="${baseurl}/css/tui-editor-contents.css">
     <link rel="stylesheet" href="${baseurl}/css/info.css">
 </head>
 <body>
@@ -41,7 +40,7 @@
                 </div>
             </div>
             <div class="info-box">
-                <iframe id="markdown-iframe" style="width:100%;position: absolute; top: 0; left: 0; height: 100%; border: none" src="/admin/index.html#markdown-info-show?infoId=${infoList[0].infoItems[0].id}" frameborder="0"></iframe>
+                <iframe id="markdown-iframe" width="100%" height="100%" style="min-height: calc(100vh - 150px)" frameborder="0" scrolling="no" src="/admin/index.html#markdown-info-show?infoId=${infoList[0].infoItems[0].id}"></iframe>
             </div>
         </div>
 
@@ -69,9 +68,59 @@
         $(".menu-box .submenu li").click(function () {
             var infoId = $(this).attr("data-id")
             $("#markdown-iframe").attr("src", "/admin/index.html#markdown-info-show?infoId="+infoId)
+            var iframe = document.getElementById('markdown-iframe');
+            iframe.style.height = "0px";
             document.getElementById('markdown-iframe').contentWindow.location.reload(true);
         })
+
+        var minHeight = $(window).height();
+        startInit('markdown-iframe', minHeight);
     })
+    var browserVersion = window.navigator.userAgent.toUpperCase();
+    var isOpera = browserVersion.indexOf("OPERA") > -1 ? true : false;
+    var isFireFox = browserVersion.indexOf("FIREFOX") > -1 ? true : false;
+    var isChrome = browserVersion.indexOf("CHROME") > -1 ? true : false;
+    var isSafari = browserVersion.indexOf("SAFARI") > -1 ? true : false;
+    var isIE = (!!window.ActiveXObject || "ActiveXObject" in window);
+    var isIE9More = (! -[1, ] == false);
+    var refreshInterval = null;
+    function reinitIframe(iframeId, minHeight) {
+        try {
+            var iframe = document.getElementById(iframeId);
+            var bHeight = 0;
+            if (isChrome == false && isSafari == false)
+                bHeight = iframe.contentWindow.document.body.scrollHeight;
+
+            var dHeight = 0;
+            if (isFireFox == true)
+                dHeight = iframe.contentWindow.document.documentElement.offsetHeight + 2;
+            else if (isIE == false && isOpera == false)
+                dHeight = iframe.contentWindow.document.documentElement.scrollHeight;
+            else if (isIE == true && isIE9More) {//ie9+
+                var heightDeviation = bHeight - eval("window.IE9MoreRealHeight" + iframeId);
+                if (heightDeviation == 0) {
+                    bHeight += 3;
+                } else if (heightDeviation != 3) {
+                    eval("window.IE9MoreRealHeight" + iframeId + "=" + bHeight);
+                    bHeight += 3;
+                }
+            }
+            else//ie[6-8]、OPERA
+                bHeight += 3;
+
+            var height = Math.max(bHeight, dHeight);
+            if (height < minHeight) height = minHeight;
+            iframe.style.height = height + "px";
+            $('.info-box').height(height);
+        } catch (ex) { }
+    }
+    function startInit(iframeId, minHeight) {
+        // eval("window.IE9MoreRealHeight" + iframeId + "=0");
+        if (refreshInterval) {
+            window.clearInterval(refreshInterval);
+        }
+        refreshInterval = window.setInterval("reinitIframe('" + iframeId + "'," + minHeight + ")", 100);
+    }
     function filterList(header, list) {
         //@header 头部元素
         //@list 无需列表
